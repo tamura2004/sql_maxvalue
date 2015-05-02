@@ -10,9 +10,9 @@
 db:blogapp, table:users作成済
 
 ## ダミーデータ100万件作成
-`> ruby generate_dummy_data.rb`
-`> psql blogapp`
-`$ \copy blogapp (name,score,team) from 'data.csv' with csv;`
+- `> ruby generate_dummy_data.rb`
+- `> psql blogapp`
+- `$ \copy blogapp (name,score,team) from 'data.csv' with csv;`
 
 [CSVファイルをデータベースにインポートする](http://qiita.com/egg_chicken/items/cec72bda3759f875285f)
 
