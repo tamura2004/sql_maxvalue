@@ -1,0 +1,4 @@
+{
+    "cmd": ["psql","-f","$file","-d","blogapp","-o","result.txt"],
+    "selector": "source.sql"
+}

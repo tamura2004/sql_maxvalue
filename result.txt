@@ -1,0 +1,57 @@
+                                                                               QUERY PLAN                                                                                
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using users_pkey on public.users  (cost=1.23..9.25 rows=1 width=19) (actual time=0.049..0.049 rows=1 loops=1)
+   Output: users.id, users.name, users.score, users.team
+   Index Cond: (users.id = $1)
+   Filter: ((users.team)::text = 'yellow'::text)
+   InitPlan 2 (returns $1)
+     ->  Result  (cost=0.80..0.81 rows=1 width=0) (actual time=0.042..0.043 rows=1 loops=1)
+           Output: $0
+           InitPlan 1 (returns $0)
+             ->  Limit  (cost=0.42..0.80 rows=1 width=4) (actual time=0.041..0.041 rows=1 loops=1)
+                   Output: users_1.id
+                   ->  Index Scan Backward using users_pkey on public.users users_1  (cost=0.42..37395.43 rows=100934 width=4) (actual time=0.040..0.040 rows=1 loops=1)
+                         Output: users_1.id
+                         Index Cond: (users_1.id IS NOT NULL)
+                         Filter: ((users_1.team)::text = 'yellow'::text)
+                         Rows Removed by Filter: 9
+ Planning time: 0.572 ms
+ Execution time: 0.091 ms
+(17 s)
+
+                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.42..19410.12 rows=1 width=19) (actual time=121.063..121.064 rows=1 loops=1)
+   Output: a.id, a.name, a.score, a.team
+   ->  GroupAggregate  (cost=0.00..19393.19 rows=2 width=9) (actual time=121.016..121.017 rows=1 loops=1)
+         Output: b.team, max(b.id)
+         Group Key: b.team
+         ->  Seq Scan on public.users b  (cost=0.00..18888.50 rows=100934 width=9) (actual time=0.007..113.134 rows=100197 loops=1)
+               Output: b.id, b.name, b.score, b.team
+               Filter: ((b.team)::text = 'yellow'::text)
+               Rows Removed by Filter: 900803
+   ->  Index Scan using users_pkey on public.users a  (cost=0.42..8.45 rows=1 width=19) (actual time=0.043..0.043 rows=1 loops=1)
+         Output: a.id, a.name, a.score, a.team
+         Index Cond: (a.id = (max(b.id)))
+         Filter: ((a.team)::text = 'yellow'::text)
+ Planning time: 0.130 ms
+ Execution time: 121.107 ms
+(15 s)
+
+                                                                 QUERY PLAN                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop Anti Join  (cost=0.42..86479.66 rows=67289 width=19) (actual time=676.641..676.642 rows=1 loops=1)
+   Output: a.id, a.name, a.score, a.team
+   ->  Seq Scan on public.users a  (cost=0.00..18888.50 rows=100934 width=19) (actual time=0.006..106.860 rows=100197 loops=1)
+         Output: a.id, a.name, a.score, a.team
+         Filter: ((a.team)::text = 'yellow'::text)
+         Rows Removed by Filter: 900803
+   ->  Index Scan using users_pkey on public.users b  (cost=0.42..6674.13 rows=33645 width=4) (actual time=0.005..0.005 rows=1 loops=100197)
+         Output: b.id, b.name, b.score, b.team
+         Index Cond: (a.id < b.id)
+         Filter: ((b.team)::text = 'yellow'::text)
+         Rows Removed by Filter: 9
+ Planning time: 0.118 ms
+ Execution time: 676.671 ms
+(13 s)
+
